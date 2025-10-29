@@ -2,4 +2,4 @@
 
 
 A máscara não esconde ela revela o que as palavras não dizem.
->Hannya Bot 👹
+>Hannya 👹

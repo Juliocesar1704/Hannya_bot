@@ -12,7 +12,7 @@ Feito para quem quer **organizar e dar personalidade** à sua comunidade.
 ## 👹 O que é o Hannya?
 
 A máscara **Hannya (般若)** é um símbolo clássico da cultura japonesa.  
-Ela retrata uma mulher consumida por emoções intensas — raiva, ciúme e tristeza — que, com o tempo, se transforma em **sabedoria e poder espiritual**.  
+Ela retrata uma mulher consumida por emoções intensas como raiva, ciúme e tristeza que, com o tempo, se transforma em **sabedoria e poder espiritual**.  
 
 No contexto do bot, o Hannya reflete esse mesmo equilíbrio: **força, emoção e controle digital** dentro do Discord.
 
@@ -92,4 +92,5 @@ Caso queira reportar um bug, sugerir melhorias ou colaborar no desenvolvimento:
 ## 📜 Licença
 
 Distribuído sob a licença **MIT**.  
+
 Feito com ☕, 🧠 e um toque de cultura japonesa por ༒ Júlio César ༒ .

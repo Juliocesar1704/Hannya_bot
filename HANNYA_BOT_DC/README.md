@@ -57,20 +57,22 @@ Convide o bot para o seu servidor clicando no link abaixo 👇
 
 ## 🧩 Estrutura interna
 
-Mesmo sendo voltado a usuários, o **Hannya** foi desenvolvido de forma modular:  
+Mesmo sendo voltado a usuários, o **Hannya** foi desenvolvido de forma modular:
 
+```
 HANNYA_BOT_DC/
 ├── cogs/
-│ ├── fun.py # Comandos de diversão
-│ ├── admin.py # Comandos administrativos
-│ ├── events.py # Eventos de boas-vindas, logs e status
-│ └── utils.py # Funções auxiliares
-├── main.py # Inicialização e carregamento dos módulos
-├── config.py # Configurações do token e IDs de canais
+│   ├── fun.py            # Comandos de diversão
+│   ├── admin.py          # Comandos administrativos
+│   ├── events.py         # Eventos de boas-vindas, logs e status
+│   └── utils.py          # Funções auxiliares
+├── main.py               # Inicialização e carregamento dos módulos
+├── config.py             # Configurações do token e IDs de canais
 └── requirements.txt
-
+```
 
 Isso garante que ele possa crescer com novos módulos e atualizações sem perder estabilidade.
+
 
 ---
 
@@ -85,7 +87,7 @@ Isso garante que ele possa crescer com novos módulos e atualizações sem perde
 ## 💬 Contato e suporte
 
 Caso queira reportar um bug, sugerir melhorias ou colaborar no desenvolvimento:  
-📫 **Entre em contato pelo Discord:** *jc_084*  
+📫 **Entre em contato pelo Discord:** *https://discord.com/users/988984006672535562*  
 💻 **Repositório oficial:** (https://github.com/Juliocesar1704/Hannya_bot)
 ---
 
@@ -94,3 +96,4 @@ Caso queira reportar um bug, sugerir melhorias ou colaborar no desenvolvimento:
 Distribuído sob a licença **MIT**.  
 
 Feito com ☕, 🧠 e um toque de cultura japonesa por ༒ Júlio César ༒ .
+

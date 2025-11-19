@@ -77,9 +77,3 @@ Sinta-se livre para sugerir melhorias, abrir issues e colaborar com o desenvolvi
 
 ---
 
-<-! 
-<p align="center">
-  Feito com muito café por <b>Hannya</b><br>
-  <i>A máscara revela o que as palavras não dizem.</i>
-</p>
-->

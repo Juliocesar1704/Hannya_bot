@@ -1,4 +1,4 @@
-<h1 align="center">👹 Projeto Hannya — Bots Multiplataforma</h1>
+<h1 align="center">Projeto Hannya — Bots Multiplataforma</h1>
 
 <p align="center"><i>A máscara não esconde. Ela revela o que as palavras não dizem.</i></p>
 
@@ -77,7 +77,9 @@ Sinta-se livre para sugerir melhorias, abrir issues e colaborar com o desenvolvi
 
 ---
 
+<-! 
 <p align="center">
-  Feito com 💀 por <b>Hannya</b><br>
+  Feito com muito café por <b>Hannya</b><br>
   <i>A máscara revela o que as palavras não dizem.</i>
 </p>
+->

@@ -86,8 +86,10 @@ Isso garante que ele possa crescer com novos módulos e atualizações sem perde
 
 ## 💬 Contato e suporte
 
-Caso queira reportar um bug, sugerir melhorias ou colaborar no desenvolvimento:  
-📫 **Entre em contato pelo Discord:** *https://discord.com/users/988984006672535562*  
+Caso queira reportar um bug, sugerir melhorias ou colaborar no desenvolvimento:
+  
+📫 **Entre em contato pelo Discord:** *https://discord.com/users/988984006672535562*
+  
 💻 **Repositório oficial:** (https://github.com/Juliocesar1704/Hannya_bot)
 ---
 

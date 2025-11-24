@@ -31,7 +31,7 @@ No contexto do bot, o Hannya reflete esse mesmo equilíbrio: **força, emoção 
 
 Convide o bot para o seu servidor clicando no link abaixo 👇  
 
-[✨ **Adicionar o Hannya ao Discord**](https://discord.com/oauth2/authorize?client_id=1380533833681600602)
+[✨ **Adicionar o Hannya ao Discord**](https://discord.com/oauth2/authorize?client_id=1380533833681600602) (O bot ainda não esta 100% funcional pois não consegui hospedar em nenhum lugar ainda)
 
 
 ---
@@ -99,4 +99,5 @@ Caso queira reportar um bug, sugerir melhorias ou colaborar no desenvolvimento:
 Distribuído sob a licença **MIT**.  
 
 Feito com ☕, 🧠 e um toque de cultura japonesa por ༒ Júlio César ༒ .
+
 

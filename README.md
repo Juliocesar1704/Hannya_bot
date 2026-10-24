@@ -34,21 +34,30 @@ Cada bot possui sua própria pasta, organizada de forma independente:
 
 ```
 HANNYA_BOTS/
-HANNYA_BOT_DC/
-├── cogs/
-│   ├── music.py          # Comandos Slash de música e voz (YouTube / Spotify / FFmpeg)
-│   ├── fun.py            # Comandos Slash de diversão e interação
-│   ├── admin.py          # Comandos Slash administrativos e advertências (warns)
-│   ├── info.py           # Comandos Slash de informações (/userinfo, /serverinfo)
-│   ├── events.py         # Eventos de boas-vindas, status rotativo e anti-spam
-│   ├── db.py             # Banco de dados SQLite persistente
-│   └── utils.py          # Funções auxiliares (safe_send, safe_reply)
-├── main.py               # Inicialização e sincronização dos Comandos Slash
-├── config.py             # Configurações com dotenv
-├── .env.example          # Modelo de variáveis de ambiente
-└── requirements.txt      # Dependências com suporte a voz (PyNaCl, davey, yt-dlp)
-
-Mais em desenvolvimento ...
+├── HANNYA_BOT_DC/           # Bot para Discord (Música, Moderação, Slash Commands)
+│   ├── cogs/
+│   │   ├── music.py         # Reprodução de música (YouTube, Spotify, FFmpeg)
+│   │   ├── fun.py           # Comandos de diversão e interação
+│   │   ├── admin.py         # Moderação avançada e advertências (warns)
+│   │   ├── info.py          # /userinfo e /serverinfo
+│   │   ├── events.py        # Boas-vindas, status rotativo e anti-spam
+│   │   ├── db.py            # Banco SQLite local
+│   │   └── utils.py         # Utilitários assíncronos
+│   ├── main.py              # Inicialização e sincronização dos Comandos Slash
+│   └── requirements.txt
+│
+└── HANNYA_BOT_TG/           # Bot para Telegram (Hannya NetWatch — Redes & Monitoramento)
+    ├── routers/
+    │   ├── monitoring.py    # Monitoramento de Uptime com alertas automáticos
+    │   ├── tools.py         # Ping, Portscan, DNS, SSL e IP público
+    │   ├── subnet.py        # Calculadora de sub-redes IPv4 / IPv6
+    │   ├── system.py        # Telemetria de CPU, RAM, Disco e interfaces de rede
+    │   └── general.py       # Menu principal e comandos informativos
+    ├── services/
+    │   ├── db.py            # SQLite de hosts monitorados
+    │   └── network.py       # Motor assíncrono de diagnósticos de rede
+    ├── main.py              # Inicializador aiogram 3.x e sentinela em background
+    └── requirements.txt
 ```
 ---
 

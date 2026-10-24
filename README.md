@@ -25,13 +25,17 @@ Cada bot possui sua própria pasta, organizada de forma independente:
 HANNYA_BOTS/
 HANNYA_BOT_DC/
 ├── cogs/
-│   ├── fun.py            # Comandos de diversão
-│   ├── admin.py          # Comandos administrativos
-│   ├── events.py         # Eventos de boas-vindas, logs e status
-│   └── utils.py          # Funções auxiliares
-├── main.py               # Inicialização e carregamento dos módulos
-├── config.py             # Configurações do token e IDs de canais
-└── requirements.txt
+│   ├── music.py          # Comandos Slash de música e voz (YouTube / Spotify / FFmpeg)
+│   ├── fun.py            # Comandos Slash de diversão e interação
+│   ├── admin.py          # Comandos Slash administrativos e advertências (warns)
+│   ├── info.py           # Comandos Slash de informações (/userinfo, /serverinfo)
+│   ├── events.py         # Eventos de boas-vindas, status rotativo e anti-spam
+│   ├── db.py             # Banco de dados SQLite persistente
+│   └── utils.py          # Funções auxiliares (safe_send, safe_reply)
+├── main.py               # Inicialização e sincronização dos Comandos Slash
+├── config.py             # Configurações com dotenv
+├── .env.example          # Modelo de variáveis de ambiente
+└── requirements.txt      # Dependências com suporte a voz (PyNaCl, davey, yt-dlp)
 
 Mais em desenvolvimento ...
 ```

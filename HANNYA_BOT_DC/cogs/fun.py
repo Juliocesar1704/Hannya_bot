@@ -1,25 +1,21 @@
 # cogs/fun.py
 import random
 import discord
-import logging
+from discord import app_commands
 from discord.ext import commands
-from cogs.utils import safe_send
+
 
 class Fun(commands.Cog):
+    """Comandos Slash de entretenimento, sorteios e interação social."""
+
     def __init__(self, bot: commands.Bot):
         self.bot = bot
-    # ============================
-    # !ola
-    # ============================
-    @commands.command(name="ola", help="Envia uma saudação simpática da Hannya para o usuário.")
-    async def ola(self, ctx):
-        await ctx.send("Olá! 🌸 A Hannya está aqui para te ajudar")
 
-    # ================================
-    # !ping - Mostra a latência do bot
-    # ================================
-    @commands.command(name="ping", help="Mostra a latência do bot.")
-    async def ping(self, ctx):
+    # ============================================================
+    # /ping
+    # ============================================================
+    @app_commands.command(name="ping", description="Mostra a latência atual da Hannya com a API do Discord.")
+    async def ping(self, interaction: discord.Interaction):
         latency = round(self.bot.latency * 1000)
         color = (
             discord.Color.green() if latency < 150 
@@ -29,37 +25,44 @@ class Fun(commands.Cog):
 
         embed = discord.Embed(
             title="🏓 Pong!",
-            description=f"Latência: `{latency} ms`",
+            description=f"Latência da API: `{latency} ms`",
             color=color
         )
+        await interaction.response.send_message(embed=embed)
 
-        await ctx.send(embed=embed)
+    # ============================================================
+    # /ola
+    # ============================================================
+    @app_commands.command(name="ola", description="Envia uma saudação personalizada e amigável da Hannya.")
+    async def ola(self, interaction: discord.Interaction):
+        await interaction.response.send_message(f"Olá, {interaction.user.mention}! 🌸 A Hannya está aqui para servir ao Refúgio de Atlas.")
 
-    # ================================
-    # !dado - Rola um dado customizável
-    # ================================
-    @commands.command(name="dado", help="Rola um dado de N lados (padrão: 6).")
-    async def dado(self, ctx, lados: int = 6):
+    # ============================================================
+    # /dado
+    # ============================================================
+    @app_commands.command(name="dado", description="Rola um dado com a quantidade de lados informada.")
+    @app_commands.describe(lados="Número de faces do dado (padrão: 6)")
+    async def dado(self, interaction: discord.Interaction, lados: int = 6):
         if lados < 2:
-            await ctx.send("⚠️ O dado precisa ter pelo menos 2 lados.")
+            await interaction.response.send_message("⚠️ O dado precisa ter pelo menos 2 lados.", ephemeral=True)
             return
 
         resultado = random.randint(1, lados)
-        await ctx.send(f"🎲 Você rolou um dado de {lados} lados: **{resultado}**!")
+        await interaction.response.send_message(f"🎲 {interaction.user.mention} rolou um dado de **{lados} lados**: tirou **{resultado}**!")
 
-    # ================================
-    # !moeda - Joga uma moeda
-    # ================================
-    @commands.command(name="moeda", help="Joga uma moeda.")
-    async def moeda(self, ctx):
+    # ============================================================
+    # /moeda
+    # ============================================================
+    @app_commands.command(name="moeda", description="Joga uma moeda para cima (Cara ou Coroa).")
+    async def moeda(self, interaction: discord.Interaction):
         resultado = random.choice(["Cara 🪙", "Coroa 🪙"])
-        await ctx.send(f"A moeda caiu em: **{resultado}**!")
+        await interaction.response.send_message(f"🪙 A moeda girou no ar e caiu em: **{resultado}**!")
 
-    # ================================
-    # !piada - Conta uma piada
-    # ================================
-    @commands.command(name="piada", help="Conta uma piada aleatória.")
-    async def piada(self, ctx):
+    # ============================================================
+    # /piada
+    # ============================================================
+    @app_commands.command(name="piada", description="Conta uma piada aleatória de tecnologia ou do dia a dia.")
+    async def piada(self, interaction: discord.Interaction):
         piadas = [
             "Por que o computador foi ao médico? Porque estava com um vírus! 💻🤒",
             "O que o zero disse para o oito? Que cinto legal! 🎩",
@@ -75,13 +78,14 @@ class Fun(commands.Cog):
             "O que o programador pediu no restaurante? Um byte para comer. 🍽️",
             "Por que os algoritmos nunca ficam doentes? Porque eles têm boas funções! 🏥"
         ]
-        await ctx.send(random.choice(piadas))
+        await interaction.response.send_message(random.choice(piadas))
 
-    # ================================
-    # !8ball - Pergunta mística
-    # ================================
-    @commands.command(name="8ball", help="Responde perguntas de forma mística.")
-    async def _8ball(self, ctx, *, pergunta: str):
+    # ============================================================
+    # /8ball
+    # ============================================================
+    @app_commands.command(name="8ball", description="Faz uma pergunta à esfera mística da Hannya.")
+    @app_commands.describe(pergunta="Qual pergunta deseja fazer à sabedoria das sombras?")
+    async def _8ball(self, interaction: discord.Interaction, pergunta: str):
         respostas = [
             "🔮 Com certeza!", "🔮 Provavelmente sim.", "🔮 Não conte com isso...",
             "🔮 É incerto no momento.", "🔮 Pode apostar!", "🔮 Me pergunte mais tarde.",
@@ -89,13 +93,14 @@ class Fun(commands.Cog):
             "🔮 As estrelas dizem que sim.", "🔮 Acho que não.", "🔮 Definitivamente!",
             "🔮 Não mesmo.", "🔮 Sem dúvida!", "🔮 Meu palpite é sim.", "🔮 Difícil dizer agora."
         ]
-        await ctx.send(f"**Pergunta:** {pergunta}\n**Resposta:** {random.choice(respostas)}")
+        await interaction.response.send_message(f"💬 **Pergunta:** {pergunta}\n✨ **Resposta:** {random.choice(respostas)}")
 
-    # ================================
-    # !hug - Abraço virtual
-    # ================================
-    @commands.command(name="hug", help="Envia um abraço virtual para alguém.")
-    async def hug(self, ctx, membro: discord.Member):
+    # ============================================================
+    # /hug
+    # ============================================================
+    @app_commands.command(name="hug", description="Envia um abraço carinhoso com GIF para um membro.")
+    @app_commands.describe(membro="Quem receberá o seu abraço?")
+    async def hug(self, interaction: discord.Interaction, membro: discord.Member):
         gifs = [
             "https://media.giphy.com/media/l2QDM9Jnim1YVILXa/giphy.gif",
             "https://media.giphy.com/media/od5H3PmEG5EVq/giphy.gif",
@@ -103,13 +108,14 @@ class Fun(commands.Cog):
             "https://media.giphy.com/media/wnsgren9NtITS/giphy.gif",
             "https://media.giphy.com/media/11cB1sJt4f1c3G/giphy.gif"
         ]
-        await ctx.send(f"{ctx.author.mention} deu um abraço em {membro.mention} 🤗\n{random.choice(gifs)}")
+        await interaction.response.send_message(f"{interaction.user.mention} deu um forte abraço em {membro.mention}! 🤗\n{random.choice(gifs)}")
 
-    # ================================
-    # !kiss - Beijo virtual
-    # ================================
-    @commands.command(name="kiss", help="Envia um beijo virtual para alguém.")
-    async def kiss(self, ctx, membro: discord.Member):
+    # ============================================================
+    # /kiss
+    # ============================================================
+    @app_commands.command(name="kiss", description="Envia um beijo amigável com GIF para um membro.")
+    @app_commands.describe(membro="Quem receberá o seu beijo?")
+    async def kiss(self, interaction: discord.Interaction, membro: discord.Member):
         gifs = [
             "https://media.giphy.com/media/G3va31oEEnIkM/giphy.gif",
             "https://media.giphy.com/media/bGm9FuBCGg4SY/giphy.gif",
@@ -117,32 +123,32 @@ class Fun(commands.Cog):
             "https://media.giphy.com/media/ZQN9TsG70eEgQ/giphy.gif",
             "https://media.giphy.com/media/3ZnBrkqoaI2hq/giphy.gif"
         ]
-        await ctx.send(f"{ctx.author.mention} deu um beijo em {membro.mention} 😘\n{random.choice(gifs)}")
+        await interaction.response.send_message(f"{interaction.user.mention} enviou um beijo para {membro.mention}! 😘\n{random.choice(gifs)}")
 
-    # ================================
-    # !fortune - Biscoito da sorte
-    # ================================
-    @commands.command(name="fortune", help="Receba uma frase de sorte.")
-    async def fortune(self, ctx):
+    # ============================================================
+    # /fortune
+    # ============================================================
+    @app_commands.command(name="fortune", description="Abre um biscoito da sorte com mensagens inspiradoras.")
+    async def fortune(self, interaction: discord.Interaction):
         mensagens = [
             "🌟 Hoje é um ótimo dia para começar algo novo!",
             "💡 Uma surpresa agradável está a caminho.",
             "🍀 A sorte está do seu lado hoje.",
             "🔥 Cuidado com decisões impulsivas!",
-            "🎯 Concentre-se nos seus objetivos, sucesso vem!",
+            "🎯 Concentre-se nos seus objetivos, o sucesso vem!",
             "😄 Sorria, coisas boas vão acontecer.",
             "💫 O universo conspira a seu favor.",
             "🪄 Grandes mudanças estão chegando!",
             "🌞 Aproveite cada momento do dia.",
             "🧩 Algo inesperado vai se encaixar perfeitamente."
         ]
-        await ctx.send(random.choice(mensagens))
+        await interaction.response.send_message(f"🥠 **Seu biscoito da sorte revela:**\n> *\"{random.choice(mensagens)}\"*")
 
-    # ================================
-    # !meme - Meme aleatório
-    # ================================
-    @commands.command(name="meme", help="Envia um meme aleatório.")
-    async def meme(self, ctx):
+    # ============================================================
+    # /meme
+    # ============================================================
+    @app_commands.command(name="meme", description="Envia uma imagem aleatória de meme.")
+    async def meme(self, interaction: discord.Interaction):
         memes = [
             "https://i.imgflip.com/5p2n2b.jpg",
             "https://i.imgflip.com/5p2n4t.jpg",
@@ -153,23 +159,21 @@ class Fun(commands.Cog):
             "https://i.imgflip.com/5p2nfg.jpg",
             "https://i.imgflip.com/5p2nh1.jpg"
         ]
-        await ctx.send(random.choice(memes))
+        await interaction.response.send_message(random.choice(memes))
 
-    # ================================
-    # !roll_number - Número aleatório
-    # ================================
-    @commands.command(name="roll_number", help="Sorteia um número entre mínimo e máximo.")
-    async def roll_number(self, ctx, min: int, max: int):
-        if min > max:
-            await ctx.send("⚠️ O número mínimo não pode ser maior que o máximo.")
+    # ============================================================
+    # /numero
+    # ============================================================
+    @app_commands.command(name="numero", description="Sorteia um número aleatório entre os limites definidos.")
+    @app_commands.describe(minimo="Valor mínimo (padrão: 1)", maximo="Valor máximo (padrão: 100)")
+    async def numero(self, interaction: discord.Interaction, minimo: int = 1, maximo: int = 100):
+        if minimo > maximo:
+            await interaction.response.send_message("⚠️ O valor mínimo não pode ser maior do que o valor máximo.", ephemeral=True)
             return
-        
-        resultado = random.randint(min, max)
-        await ctx.send(f"🎲 Número sorteado entre {min} e {max}: **{resultado}**")
 
-# ================================
-# SETUP
-# ================================
+        resultado = random.randint(minimo, maximo)
+        await interaction.response.send_message(f"🎲 Sorteio realizado entre `{minimo}` e `{maximo}`: **{resultado}**!")
+
+
 async def setup(bot: commands.Bot):
     await bot.add_cog(Fun(bot))
-    logging.info("✔ Cog 'Fun' registrada com prefix commands!")

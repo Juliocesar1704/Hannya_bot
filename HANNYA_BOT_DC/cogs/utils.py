@@ -2,25 +2,25 @@
 import discord
 import logging
 
-# Configura logs
-logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(message)s")
-
+logger = logging.getLogger(__name__)
 
 async def safe_send(ctx, content=None, embed=None):
-    
+    """Envia uma mensagem de forma segura capturando exceções de permissão."""
     try:
-        await ctx.send(content=content, embed=embed)
-
+        return await ctx.send(content=content, embed=embed)
     except discord.Forbidden:
-        logging.error("O bot não tem permissão para enviar mensagens no canal.")
-
+        logger.error("O bot não tem permissão para enviar mensagens no canal.")
     except discord.HTTPException as e:
-        logging.error(f"Falha ao enviar mensagem: {e}")
+        logger.error(f"Falha ao enviar mensagem: {e}")
+    return None
 
 
 async def safe_reply(message: discord.Message, content=None, embed=None):
-  
+    """Responde a uma mensagem de forma segura capturando exceções."""
     try:
-        await message.reply(content=content, embed=embed)
+        return await message.reply(content=content, embed=embed)
+    except discord.Forbidden:
+        logger.error("O bot não tem permissão para responder no canal.")
     except Exception as e:
-        logging.error(f"Erro em safe_reply(): {e}")
+        logger.error(f"Erro em safe_reply(): {e}")
+    return None

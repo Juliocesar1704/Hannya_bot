@@ -12,8 +12,9 @@ from aiogram import Bot, Dispatcher, types
 from aiogram.enums import ParseMode
 from aiogram.client.default import DefaultBotProperties
 from config import TELEGRAM_BOT_TOKEN
-from routers import general, monitoring, tools, subnet, system
+from routers import general, monitoring, tools, subnet, system, security
 from routers.monitoring import run_monitoring_worker
+from services.webhook import start_webhook_server
 
 logging.basicConfig(
     level=logging.INFO,
@@ -26,18 +27,24 @@ logger = logging.getLogger("HannyaTelegramBot")
 async def set_bot_commands(bot: Bot):
     """Configura o menu de comandos azul nativo do Telegram."""
     commands = [
-        types.BotCommand(command="start", description="Menu principal e boas-vindas"),
-        types.BotCommand(command="status", description="Painel de saúde dos hosts monitorados"),
+        types.BotCommand(command="start", description="Menu principal interativo"),
+        types.BotCommand(command="status", description="Painel de saúde com gráficos e botões"),
+        types.BotCommand(command="grafico", description="Gráfico de latência do host monitorado"),
         types.BotCommand(command="monitorar", description="Cadastrar ou gerenciar hosts vigiados"),
-        types.BotCommand(command="ping", description="Testar latência e perda de pacotes (ICMP)"),
-        types.BotCommand(command="portscan", description="Varredura de portas abertas em um host"),
+        types.BotCommand(command="ping", description="Latência e perda de pacotes (ICMP)"),
+        types.BotCommand(command="traceroute", description="Rastreamento de saltos/hops na rota"),
+        types.BotCommand(command="whois", description="ASN, ISP e geolocalização do IP"),
+        types.BotCommand(command="mac", description="Identificar fabricante da placa de rede"),
         types.BotCommand(command="subnet", description="Calculadora de sub-redes IPv4/IPv6"),
-        types.BotCommand(command="dns", description="Consultar registros DNS (A, MX, TXT, etc.)"),
-        types.BotCommand(command="cert", description="Checar validade do certificado SSL/TLS"),
-        types.BotCommand(command="server", description="Telemetria de CPU, RAM, Disco e tráfego"),
-        types.BotCommand(command="myip", description="Ver o endereço IP público do bot"),
-        types.BotCommand(command="ajuda", description="Manual detalhado de todos os recursos"),
-        types.BotCommand(command="sobre", description="Sobre o Hannya NetWatch"),
+        types.BotCommand(command="vlsm", description="Calculadora de sub-redes VLSM"),
+        types.BotCommand(command="cisco", description="Scripts e templates Cisco IOS (CCNA)"),
+        types.BotCommand(command="headers", description="Auditoria OWASP de cabeçalhos de segurança"),
+        types.BotCommand(command="blacklist", description="Consulta de IP em listas DNSBL"),
+        types.BotCommand(command="dns", description="Consultar registros DNS (A, MX, etc.)"),
+        types.BotCommand(command="cert", description="Validade do certificado SSL/TLS"),
+        types.BotCommand(command="webhook", description="Central de webhooks para Zabbix/Grafana"),
+        types.BotCommand(command="server", description="Telemetria de CPU, RAM e tráfego"),
+        types.BotCommand(command="ajuda", description="Manual completo de todos os recursos"),
     ]
     await bot.set_my_commands(commands)
     logger.info("✔ Menu de comandos nativo do Telegram configurado com sucesso!")
@@ -61,6 +68,7 @@ async def main():
     dp.include_router(monitoring.router)
     dp.include_router(tools.router)
     dp.include_router(subnet.router)
+    dp.include_router(security.router)
     dp.include_router(system.router)
 
     # Configura comandos no menu do Telegram
@@ -68,6 +76,9 @@ async def main():
 
     # Inicia a Sentinela de monitoramento em segundo plano
     asyncio.create_task(run_monitoring_worker(bot))
+
+    # Inicia o Servidor de Webhooks externo em segundo plano
+    asyncio.create_task(start_webhook_server(bot))
 
     me = await bot.get_me()
     logger.info(f"🤖 Bot conectado com sucesso como: {me.first_name} (@{me.username})")

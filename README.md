@@ -48,15 +48,17 @@ HANNYA_BOTS/
 │
 └── HANNYA_BOT_TG/           # Bot para Telegram (Hannya NetWatch — Redes & Monitoramento)
     ├── routers/
-    │   ├── monitoring.py    # Monitoramento de Uptime com alertas automáticos
-    │   ├── tools.py         # Ping, Portscan, DNS, SSL e IP público
-    │   ├── subnet.py        # Calculadora de sub-redes IPv4 / IPv6
+    │   ├── monitoring.py    # Monitoramento de Uptime, alertas e gráficos de latência
+    │   ├── tools.py         # Traceroute, Whois/ASN, MAC OUI, Ping, Portscan, DNS, SSL
+    │   ├── subnet.py        # Calculadora IPv4/IPv6, VLSM e gerador Cisco CCNA
+    │   ├── security.py      # Auditoria OWASP de cabeçalhos HTTP, DNSBL e DNSSEC
     │   ├── system.py        # Telemetria de CPU, RAM, Disco e interfaces de rede
-    │   └── general.py       # Menu principal e comandos informativos
+    │   └── general.py       # Menu interativo com botões inline e manual de ajuda
     ├── services/
-    │   ├── db.py            # SQLite de hosts monitorados
-    │   └── network.py       # Motor assíncrono de diagnósticos de rede
-    ├── main.py              # Inicializador aiogram 3.x e sentinela em background
+    │   ├── db.py            # SQLite de hosts, histórico de latência e inscrições
+    │   ├── network.py       # Motor de rede, traceroute, ASN, OUI, VLSM e gráficos
+    │   └── webhook.py       # Servidor HTTP para alertas externos (Zabbix, Grafana)
+    ├── main.py              # Inicializador aiogram 3.x, sentinela e servidor webhook
     └── requirements.txt
 ```
 ---

@@ -74,15 +74,22 @@ async def cmd_monitor(message: types.Message):
             return
 
         linhas = ["📋 **Seus Hosts Monitorados:**\n"]
+        builder = InlineKeyboardBuilder()
+
         for h in hosts:
             status_emoji = "🟢" if h["last_status"] == "ONLINE" else ("🔴" if h["last_status"] == "OFFLINE" else "⚪")
             linhas.append(
-                f"• `[ID #{h['id']}]` {status_emoji} **{h['name']}** (`{h['host']}`)\n"
+                f"• `[#{h['id']}]` {status_emoji} **{h['name']}** (`{h['host']}`)\n"
                 f"   Tipo: `{h['check_type']}` | Latência: `{h['last_latency_ms']} ms` | Checado: `{h['last_checked'] or 'Aguardando'}`"
             )
+            # Botões por host
+            builder.button(text=f"📊 Gráfico #{h['id']}", callback_data=f"chart:{h['id']}")
+            builder.button(text=f"🔄 Testar #{h['id']}", callback_data=f"retest:{h['id']}")
+            builder.button(text=f"🗑️ Excluir #{h['id']}", callback_data=f"del:{h['id']}")
 
-        linhas.append("\nPara remover algum host, use: `/monitorar remove <ID>`")
-        await message.answer("\n".join(linhas), parse_mode="Markdown")
+        builder.adjust(3)
+        linhas.append("\n_Toque nos botões abaixo para gerar gráficos, testar agora ou remover:_")
+        await message.answer("\n".join(linhas), parse_mode="Markdown", reply_markup=builder.as_markup())
 
     elif subcomando in ["remove", "remover", "del"]:
         if len(partes) < 3 or not partes[2].isdigit():
@@ -95,6 +102,170 @@ async def cmd_monitor(message: types.Message):
             await message.answer(f"🗑️ O host `#{host_id}` foi removido do seu monitoramento com sucesso!", parse_mode="Markdown")
         else:
             await message.answer(f"❌ Não foi encontrado nenhum host ativo com o ID `#{host_id}` no seu perfil.", parse_mode="Markdown")
+
+
+# ============================================================
+# /grafico <id>
+# ============================================================
+@router.message(Command("grafico"))
+async def cmd_grafico(message: types.Message):
+    partes = message.text.strip().split()
+    if len(partes) < 2 or not partes[1].isdigit():
+        hosts = get_user_hosts(message.chat.id)
+        if not hosts:
+            await message.answer("📭 Nenhum host monitorado encontrado. Cadastre um com `/monitorar add <host>`.")
+            return
+        builder = InlineKeyboardBuilder()
+        for h in hosts:
+            builder.button(text=f"📊 {h['name']} (#{h['id']})", callback_data=f"chart:{h['id']}")
+        builder.adjust(2)
+        await message.answer("Selecione o host para gerar o gráfico de latência:", reply_markup=builder.as_markup())
+        return
+
+    host_id = int(partes[1])
+    await send_host_chart(message, host_id)
+
+
+async def send_host_chart(event_or_msg, host_id: int):
+    """Gera e envia o gráfico de latência."""
+    from services.db import get_host, get_host_history
+    from services.network import generate_latency_chart
+
+    host = get_host(host_id)
+    if not host:
+        await event_or_msg.answer("❌ Host não encontrado.")
+        return
+
+    history = get_host_history(host_id, limit=30)
+    chart_bytes = generate_latency_chart(host["name"], history)
+
+    photo = types.BufferedInputFile(chart_bytes, filename=f"latency_{host_id}.png")
+    caption = (
+        f"📊 **Histórico de Latência — {host['name']}**\n\n"
+        f"• **Alvo:** `{host['host']}`\n"
+        f"• **Última checagem:** `{host['last_latency_ms']} ms` ({host['last_status']})\n"
+        f"• **Amostras no gráfico:** `{len(history)} pontos`"
+    )
+
+    if isinstance(event_or_msg, types.CallbackQuery):
+        await event_or_msg.message.answer_photo(photo=photo, caption=caption, parse_mode="Markdown")
+        await event_or_msg.answer()
+    else:
+        await event_or_msg.answer_photo(photo=photo, caption=caption, parse_mode="Markdown")
+
+
+# ============================================================
+# /webhook (INSCRIÇÃO E GUIA DE INTEGRAÇÃO)
+# ============================================================
+@router.message(Command("webhook"))
+async def cmd_webhook(message: types.Message):
+    from services.db import register_webhook_subscriber, unregister_webhook_subscriber, get_webhook_subscribers
+    from config import WEBHOOK_HOST, WEBHOOK_PORT
+
+    partes = message.text.strip().split()
+    subscribers = get_webhook_subscribers()
+    is_subscribed = message.chat.id in subscribers
+
+    if len(partes) >= 2 and partes[1].lower() in ["toggle", "inscrever", "ativar"]:
+        if is_subscribed:
+            unregister_webhook_subscriber(message.chat.id)
+            await message.answer("🔕 Você desativou os alertas de Webhook para este chat.")
+        else:
+            register_webhook_subscriber(message.chat.id)
+            await message.answer("🔔 **Chat inscrito com sucesso!** Você receberá alertas externos aqui.")
+        return
+
+    status_icon = "🔔 ATIVO" if is_subscribed else "🔕 DESATIVADO"
+    builder = InlineKeyboardBuilder()
+    builder.button(
+        text="🔕 Desativar Alertas" if is_subscribed else "🔔 Ativar Alertas neste Chat",
+        callback_data="toggle_webhook"
+    )
+
+    doc_text = (
+        f"⚡ **Central de Webhooks Externos — Hannya NetWatch**\n\n"
+        f"Status neste chat: **{status_icon}**\n\n"
+        f"Integre seus sistemas de monitoramento externos (**Zabbix**, **Grafana**, **Uptime Kuma**, **Prometheus**, **GitHub Actions** ou scripts Bash) para enviar alertas direto no Telegram.\n\n"
+        f"🌐 **Endpoint HTTP do Servidor:**\n"
+        f"`http://<IP_DO_BOT>:{WEBHOOK_PORT}/webhook/alert`\n\n"
+        f"📥 **Formato do Payload JSON (POST):**\n"
+        "```json\n"
+        "{\n"
+        '  "source": "Zabbix / Uptime Kuma",\n'
+        '  "level": "CRITICAL",\n'
+        '  "title": "Link Fibra WAN Down",\n'
+        '  "message": "Interface GigabitEthernet0/1 perdeu conectividade com o gateway!"\n'
+        "}\n"
+        "```\n"
+        f"• **Níveis suportados:** `CRITICAL`, `WARNING`, `INFO`, `RESOLVED`."
+    )
+    await message.answer(doc_text, parse_mode="Markdown", reply_markup=builder.as_markup())
+
+
+@router.callback_query(lambda c: c.data == "toggle_webhook")
+async def cb_toggle_webhook(callback: types.CallbackQuery):
+    from services.db import register_webhook_subscriber, unregister_webhook_subscriber, get_webhook_subscribers
+
+    subscribers = get_webhook_subscribers()
+    if callback.message.chat.id in subscribers:
+        unregister_webhook_subscriber(callback.message.chat.id)
+        await callback.answer("Alertas de Webhook desativados!")
+    else:
+        register_webhook_subscriber(callback.message.chat.id)
+        await callback.answer("Chat inscrito para receber alertas de Webhook!")
+    await cmd_webhook(callback.message)
+
+
+# ============================================================
+# CALLBACKS INTERATIVOS DOS BOTÕES DE HOST
+# ============================================================
+@router.callback_query(lambda c: c.data.startswith("chart:"))
+async def cb_chart(callback: types.CallbackQuery):
+    host_id = int(callback.data.split(":")[1])
+    await send_host_chart(callback, host_id)
+
+
+@router.callback_query(lambda c: c.data.startswith("retest:"))
+async def cb_retest(callback: types.CallbackQuery):
+    from services.db import get_host, update_host_result
+    host_id = int(callback.data.split(":")[1])
+    host = get_host(host_id)
+    if not host:
+        await callback.answer("Host não encontrado.")
+        return
+
+    await callback.answer(f"Testando {host['name']} agora...")
+    target = host["host"]
+    check_type = host["check_type"]
+    port = host["port"]
+
+    if check_type == "HTTP":
+        is_up, _, lat, msg = await check_http(target)
+    elif check_type == "PORT" and port:
+        is_up, lat = await check_tcp_port(target, port)
+        msg = f"{lat:.1f} ms" if is_up else "Porta Fechada"
+    else:
+        is_up, lat, msg = await ping_host(target)
+
+    status = "ONLINE" if is_up else "OFFLINE"
+    update_host_result(host_id, status, lat, 0 if is_up else 1)
+
+    emoji = "🟢" if is_up else "🔴"
+    await callback.message.answer(
+        f"{emoji} **Teste imediato de {host['name']}:**\n"
+        f"• Status: **{status}**\n"
+        f"• Latência: `{lat:.1f} ms`\n"
+        f"• Detalhes: `{msg}`",
+        parse_mode="Markdown"
+    )
+
+
+@router.callback_query(lambda c: c.data.startswith("del:"))
+async def cb_del(callback: types.CallbackQuery):
+    host_id = int(callback.data.split(":")[1])
+    delete_host(host_id, callback.message.chat.id)
+    await callback.answer(f"Host #{host_id} removido!")
+    await callback.message.edit_text(f"🗑️ O host `#{host_id}` foi removido com sucesso.", parse_mode="Markdown")
 
 
 # ============================================================
@@ -115,7 +286,9 @@ async def cmd_status(message: types.Message):
 
     builder = InlineKeyboardBuilder()
     builder.button(text="🔄 Atualizar Painel", callback_data="refresh_status")
-    builder.button(text="➕ Adicionar Host", callback_data="menu_monitors")
+    for h in hosts:
+        builder.button(text=f"📊 {h['name']}", callback_data=f"chart:{h['id']}")
+    builder.adjust(2)
 
     linhas = [
         "📊 **Painel de Saúde de Infraestrutura — Hannya NetWatch**\n",
@@ -146,7 +319,9 @@ async def cb_refresh_status(callback: types.CallbackQuery):
 
     builder = InlineKeyboardBuilder()
     builder.button(text="🔄 Atualizar Painel", callback_data="refresh_status")
-    builder.button(text="➕ Adicionar Host", callback_data="menu_monitors")
+    for h in hosts:
+        builder.button(text=f"📊 {h['name']}", callback_data=f"chart:{h['id']}")
+    builder.adjust(2)
 
     linhas = [
         "📊 **Painel de Saúde de Infraestrutura — Hannya NetWatch**\n",

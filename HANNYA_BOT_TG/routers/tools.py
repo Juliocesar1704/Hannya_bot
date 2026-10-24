@@ -164,3 +164,101 @@ async def cmd_myip(message: types.Message):
         await message.answer(texto, parse_mode="Markdown")
     except Exception as e:
         await message.answer(f"❌ Não foi possível consultar o IP público: {e}")
+
+
+# ============================================================
+# /traceroute
+# ============================================================
+@router.message(Command("traceroute", "tracert"))
+async def cmd_traceroute(message: types.Message):
+    from services.network import run_traceroute
+
+    partes = message.text.strip().split()
+    if len(partes) < 2:
+        await message.answer("⚠️ Uso: `/traceroute <host_ou_ip>`\nEx: `/traceroute 8.8.8.8` ou `/traceroute uol.com.br`", parse_mode="Markdown")
+        return
+
+    alvo = partes[1].strip()
+    status_msg = await message.answer(f"🧭 Executando traceroute para `{alvo}` (até 18 saltos)... Isso pode levar alguns segundos.", parse_mode="Markdown")
+
+    hops = await run_traceroute(alvo, max_hops=18)
+
+    linhas = [
+        f"🧭 **Traceroute — Rota para {alvo}**\n",
+        "Salto | RTT | Endereço IP / Roteador",
+        "----------------------------------------"
+    ]
+
+    for h in hops:
+        linhas.append(f"`#{h['hop']:02d}` • `{h['rtt']:<8}` • `{h['ip']}`")
+
+    linhas.append("\n*Trace concluído com sucesso.*")
+    await status_msg.edit_text("\n".join(linhas), parse_mode="Markdown")
+
+
+# ============================================================
+# /whois & /geo
+# ============================================================
+@router.message(Command("whois", "geo"))
+async def cmd_whois(message: types.Message):
+    from services.network import lookup_whois_and_geo
+
+    partes = message.text.strip().split()
+    if len(partes) < 2:
+        await message.answer("⚠️ Uso: `/whois <ip_ou_dominio>`\nEx: `/whois 1.1.1.1` ou `/whois registro.br`", parse_mode="Markdown")
+        return
+
+    alvo = partes[1].strip()
+    status_msg = await message.answer(f"🔍 Consultando ASN e dados geográficos de `{alvo}`...", parse_mode="Markdown")
+
+    info = await lookup_whois_and_geo(alvo)
+
+    if not info.get("success"):
+        await status_msg.edit_text(f"❌ Falha na consulta: `{info.get('error')}`", parse_mode="Markdown")
+        return
+
+    texto = (
+        f"🌐 **Informações de ASN & Geolocalização**\n\n"
+        f"• **Alvo Consultado:** `{alvo}`\n"
+        f"• **Endereço IP:** `{info['ip']}`\n"
+        f"• **Sistema Autônomo (ASN):** `{info['asn']}`\n"
+        f"• **Provedor / Organização:** `{info['org']}`\n"
+        f"• **Localização:** `{info['city']}, {info['country']}`\n"
+        f"• **Fuso Horário:** `{info['timezone']}`\n"
+        f"• **Coordenadas:** `{info['coords']}`"
+    )
+    await status_msg.edit_text(texto, parse_mode="Markdown")
+
+
+# ============================================================
+# /mac (OUI LOOKUP)
+# ==========================================
+@router.message(Command("mac", "oui"))
+async def cmd_mac(message: types.Message):
+    from services.network import lookup_mac_oui
+
+    partes = message.text.strip().split()
+    if len(partes) < 2:
+        await message.answer("⚠️ Uso: `/mac <endereco_mac>`\nEx: `/mac 00:1A:2B:3C:4D:5E` ou `/mac CC:2D:E0`", parse_mode="Markdown")
+        return
+
+    mac_input = partes[1].strip()
+    res = await lookup_mac_oui(mac_input)
+
+    if res.get("success"):
+        texto = (
+            f"🏷️ **Consulta de Fabricante MAC (OUI)**\n\n"
+            f"• **Endereço MAC:** `{mac_input}`\n"
+            f"• **Prefixo OUI:** `{res['oui']}`\n"
+            f"• **Fabricante:** 🏢 **{res['vendor']}**\n"
+            f"• **Fonte:** `{res['source']}`"
+        )
+    else:
+        texto = (
+            f"🏷️ **Consulta de Fabricante MAC (OUI)**\n\n"
+            f"• **Endereço MAC:** `{mac_input}`\n"
+            f"• **Status:** ⚠️ Não identificado\n"
+            f"• **Detalhe:** {res.get('error')}"
+        )
+
+    await message.answer(texto, parse_mode="Markdown")

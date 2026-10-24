@@ -11,3 +11,6 @@ load_dotenv(dotenv_path=env_file)
 
 TELEGRAM_BOT_TOKEN = os.getenv("TELEGRAM_BOT_TOKEN", "")
 CHECK_INTERVAL_SECONDS = int(os.getenv("CHECK_INTERVAL_SECONDS", "60"))
+WEBHOOK_PORT = int(os.getenv("WEBHOOK_PORT", "8088"))
+WEBHOOK_HOST = os.getenv("WEBHOOK_HOST", "0.0.0.0")
+ADMIN_CHAT_ID = os.getenv("ADMIN_CHAT_ID", "")

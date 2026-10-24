@@ -1,6 +1,17 @@
+<p align="center">
+  <img src="assets/hannya_banner_hd.png" alt="Projeto Hannya Banner" width="100%">
+</p>
+
 <h1 align="center">Projeto Hannya — Bots Multiplataforma</h1>
 
 <p align="center"><i>A máscara não esconde. Ela revela o que as palavras não dizem.</i></p>
+
+<p align="center">
+  <img src="https://img.shields.io/badge/Python-3.10%2B-3776AB?style=for-the-badge&logo=python&logoColor=white" alt="Python 3.10+">
+  <img src="https://img.shields.io/badge/Discord.py-2.7%2B-5865F2?style=for-the-badge&logo=discord&logoColor=white" alt="Discord.py">
+  <img src="https://img.shields.io/badge/Spotify-Support-1DB954?style=for-the-badge&logo=spotify&logoColor=white" alt="Spotify">
+  <img src="https://img.shields.io/badge/Status-Ativo-success?style=for-the-badge" alt="Status">
+</p>
 
 ---
 

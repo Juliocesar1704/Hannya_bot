@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="../assets/hannya_banner_hd.png" alt="Hannya Discord Bot Banner" width="100%">
+</p>
+
 # 🏮 Hannya Bot
 
 > “Mesmo uma máscara de fúria pode esconder sabedoria.”
@@ -171,6 +175,6 @@ Caso queira reportar um bug, sugerir melhorias ou colaborar no desenvolvimento:
 
 Distribuído sob a licença **MIT**.  
 
-Feito com ☕, 🧠 e um toque de cultura japonesa por ༒ Júlio César ༒ .
+Feito com ☕, 🧠 e um toque de cultura japonesa por Júlio César.
 
 
